@@ -1,4 +1,4 @@
-# express-boilerplate_andrewtyl
+# blogful-api_andrewtyl
 
 8-30 / Andrew Jessen-Tyler / Databases with Express
 
