@@ -75,7 +75,7 @@ describe(`GET /articles/:article_id`, () => {
 })
 
 describe.only(`POST /articles`, () => {
-    it(`creates an article, responding with 201 and the new article`, function() {
+    it(`creates an article, responding with 201 and the new article`, function () {
         this.retries(10)
         const newArticle = {
             title: 'Test new article',
@@ -101,4 +101,39 @@ describe.only(`POST /articles`, () => {
                     .expect(postRes.body)
             )
     })
+
+    it(`responds with 400 and an error message when the 'title' is missing`, () => {
+        return supertest(app)
+            .post('/articles')
+            .send({
+                style: 'Listicle',
+                content: 'Test new article content...'
+            })
+            .expect(400, {
+                error: { message: `Missing 'title' in request body` }
+            })
+    })
+
+    {
+        const requiredFields = ['title', 'style', 'content']
+
+        requiredFields.forEach(field => {
+            const newArticle = {
+                title: 'Test new article',
+                style: 'Listicle',
+                content: 'Test new article content...'
+            }
+
+            it(`responds with 400 and an error message when the '${field}' is missing`, () => {
+                delete newArticle[field]
+
+                return supertest(app)
+                    .post('/articles')
+                    .send(newArticle)
+                    .expect(400, {
+                        error: { message: `Missing '${field}' in request body` }
+                    })
+            })
+        })
+    }
 })
