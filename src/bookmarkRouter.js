@@ -2,9 +2,7 @@
 const express = require('express');
 const bookmarkRouter = express.Router();
 const bodyParser = express.json();
-const cuid = require('cuid');
 const BookmarksService = require('./bookmarks-service')
-const BOOKMARKS = require('./STORE-bookmarks');
 
 bookmarkRouter
   .route('/')

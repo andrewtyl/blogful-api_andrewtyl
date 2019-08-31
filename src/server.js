@@ -4,8 +4,7 @@ const {PORT, DB_URL1, DB_URL2} = require('./config')
 
 const db1 = knex({
   client: 'pg',
-  connection: DB_URL1,
-})
+  connection: DB_URL1})
 
 const db2 = knex({
   client: 'pg',

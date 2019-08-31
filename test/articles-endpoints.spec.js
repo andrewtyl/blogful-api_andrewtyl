@@ -10,6 +10,7 @@ before('make knex instance', () => {
         connection: process.env.TEST_DB_URL1
     })
     app.set('db1', db)
+
 })
 
 after('disconnect from db', () => db.destroy())
@@ -71,5 +72,33 @@ describe(`GET /articles/:article_id`, () => {
                 .expect(404, { error: { message: `Article doesn't exist` } })
         })
     })
+})
 
+describe.only(`POST /articles`, () => {
+    it(`creates an article, responding with 201 and the new article`, function() {
+        this.retries(10)
+        const newArticle = {
+            title: 'Test new article',
+            style: 'Listicle',
+            content: 'Test new article content...'
+        }
+        return supertest(app)
+            .post('/articles')
+            .send(newArticle)
+            .expect(res => {
+                expect(res.body.title).to.eql(newArticle.title)
+                expect(res.body.style).to.eql(newArticle.style)
+                expect(res.body.content).to.eql(newArticle.content)
+                expect(res.body).to.have.property('id')
+                expect(res.headers.location).to.eql(`/articles/${res.body.id}`)
+                const expected = new Date().toLocaleString()
+                const actual = new Date(res.body.date_published).toLocaleString()
+                expect(actual).to.eql(expected)
+            })
+            .then(postRes =>
+                supertest(app)
+                    .get(`/articles/${postRes.body.id}`)
+                    .expect(postRes.body)
+            )
+    })
 })
