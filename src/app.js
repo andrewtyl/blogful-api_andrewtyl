@@ -63,7 +63,7 @@ app.get('/', (req, res) => {
 })
 
 app.get('/articles', (req, res, next) => {
-    const knexInstance = req.app.get('db')
+    const knexInstance = req.app.get('db1')
     ArticlesService.getAllArticles(knexInstance)
         .then(articles => {
             res.json(articles)
@@ -72,7 +72,7 @@ app.get('/articles', (req, res, next) => {
 })
 
 app.get('/articles/:article_id', (req, res, next) => {
-    const knexInstance = req.app.get('db')
+    const knexInstance = req.app.get('db1')
     ArticlesService.getById(knexInstance, req.params.article_id)
         .then(article => {
             if (!article) {
