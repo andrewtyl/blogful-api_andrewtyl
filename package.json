@@ -1,0 +1,36 @@
+{
+  "name": "blogful-api_andrewtyl",
+  "version": "1.0.0",
+  "description": "8-30 / Andrew Jessen-Tyler / Databases with Express",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --require test/setup.js",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "predeploy": "npm audit",
+    "deploy": "git push heroku master"
+  },
+  "keywords": [],
+  "author": "Andrew Jessen-Tyler",
+  "license": "none",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thinkful-ei-firefly/blogful-api_andrewtyl.git"
+  },
+  "engines": {
+    "node": "12.9.1"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.1.0",
+    "express": "^4.17.1",
+    "helmet": "^3.20.1",
+    "morgan": "^1.9.1"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^6.2.0",
+    "nodemon": "^1.19.1",
+    "supertest": "^4.0.2"
+  }
+}
