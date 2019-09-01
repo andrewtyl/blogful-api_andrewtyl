@@ -46,7 +46,6 @@ describe(`GET /articles`, () => {
     })
 
     context(`Given an XSS attack article`, () => {
-        const newDate = new Date();
         const testArticles = makeMaliciousArticlesArray();
         const maliciousArticle = testArticles[4]
         let expectedMaliciousArticle = maliciousArticle;
