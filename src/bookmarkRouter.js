@@ -13,12 +13,13 @@ function sanatizeAllBookmarks(inputedBookmarks) {
     let thisBookmarkSanitized = thisBookmark
     thisBookmarkSanitized.title = xss(thisBookmarkSanitized.title)
     thisBookmarkSanitized.description = xss(thisBookmarkSanitized.description)
+    thisBookmarkSanitized.url = xss(thisBookmarkSanitized.url)
     bookmarksToReturn.push(thisBookmarkSanitized)
   }
   return bookmarksToReturn;
 }
 
-function sanatizeOneBookmarks(inputedBookmark) {
+function sanatizeOneBookmark(inputedBookmark) {
   let bookmarkToReturn = {
     id: inputedBookmark.id,
     title: xss(inputedBookmark.title),
@@ -81,9 +82,7 @@ bookmarkRouter
     }
 
     newBookmark.rating = Math.floor(newBookmark.rating)
-    newBookmark.title = xss(newBookmark.title);
-    newBookmark.description = xss(newBookmark.description);
-    newBookmark.url = xss(newBookmark.url)
+    newBookmark = sanatizeOneBookmark(newBookmark)
 
     BookmarksService.addBookmark(
       req.app.get('db2'),
@@ -119,11 +118,20 @@ bookmarkRouter
       .catch(next)
   })
   .get((req, res, next) => {
-    const toReturn = sanatizeOneBookmarks(res.bookmark)
+    const toReturn = sanatizeOneBookmark(res.bookmark)
     res.json(toReturn)
   })
-  .delete((req, res) => {
-    res.status(501).json('Feature not implimented yet')
+  .delete((req, res, next) => {
+    console.log("test")
+    console.log(req.params)
+    BookmarksService.deleteBookmark(
+      req.app.get('db2'),
+      req.params.id
+    )
+      .then(() => {
+        res.status(204).end()
+      })
+      .catch(next)
   })
 
 module.exports = bookmarkRouter;

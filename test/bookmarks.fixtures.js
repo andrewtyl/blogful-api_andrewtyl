@@ -52,7 +52,7 @@ function makeMaliciousBookmarksArray() {
       title: "<img src='https://url.to.file.which/does-not.exist' onerror='alert(document.cookie);'>",
       rating: 1,
       description: "<script>alert('xss');</script>",
-      url: 'https://geekprank.com/fake-virus/'
+      url: `https://geekprank.com/fake-virus/<script>alert('xss');</script>`
     }
   ];
 }
