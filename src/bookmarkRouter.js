@@ -122,8 +122,6 @@ bookmarkRouter
     res.json(toReturn)
   })
   .delete((req, res, next) => {
-    console.log("test")
-    console.log(req.params)
     BookmarksService.deleteBookmark(
       req.app.get('db2'),
       req.params.id

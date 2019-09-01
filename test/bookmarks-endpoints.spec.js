@@ -304,7 +304,7 @@ describe(`POST /bookmarks`, () => {
 
 })
 
-describe.only(`Delete /bookmarks/:id`, () => {
+describe(`Delete /bookmarks/:id`, () => {
     context('Given the bookmark ID exists', () => {
         const testBookmarks = makeBookmarksArray()
 
@@ -318,6 +318,13 @@ describe.only(`Delete /bookmarks/:id`, () => {
             return supertest(app)
                 .delete(`/bookmarks/1`)
                 .expect(204)
+                .then(res => {
+                    let expectedBookmarks = [testBookmarks[1], testBookmarks[2]];
+                    return supertest(app)
+                        .get('/bookmarks/')
+                        .expect(expectedBookmarks)
+                }
+                )
         })
     })
 
