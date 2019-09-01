@@ -1,7 +1,8 @@
 const { expect } = require('chai')
 const knex = require('knex')
 const app = require('../src/app')
-const { makeArticlesArray } = require('./articles.fixtures')
+const { makeArticlesArray, makeMaliciousArticlesArray } = require('./articles.fixtures')
+const xss = require('xss')
 let db;
 
 before('make knex instance', () => {
@@ -19,7 +20,7 @@ before('clean the table', () => db('blogful_articles').truncate())
 
 afterEach('cleanup', () => db('blogful_articles').truncate())
 
-describe(`GET /articles`, () => {
+describe.only(`GET /articles`, () => {
     context('Given there are articles in the database', () => {
         const testArticles = makeArticlesArray()
 
@@ -43,9 +44,38 @@ describe(`GET /articles`, () => {
                 .expect(200, [])
         })
     })
+
+    context(`Given an XSS attack article`, () => {
+        const newDate = new Date();
+        const testArticles = makeMaliciousArticlesArray();
+        const maliciousArticle = testArticles[4]
+        let expectedMaliciousArticle = maliciousArticle;
+        expectedMaliciousArticle.title = xss(expectedMaliciousArticle.title)
+        expectedMaliciousArticle.content = xss(expectedMaliciousArticle.content)
+
+        let expectedArticles = testArticles
+        expectedArticles[4] = expectedMaliciousArticle
+
+        beforeEach('insert articles including malicious article', () => {
+            return db
+                .into('blogful_articles')
+                .insert(testArticles)
+        })
+
+        it('removes XSS attack content', () => {
+            return supertest(app)
+                .get(`/articles/`)
+                .expect(200)
+                .expect(res => {
+                    expect(res.body).to.eql(expectedArticles)
+                })
+        })
+    })
+
+
 })
 
-describe.only(`GET /articles/:article_id`, () => {
+describe(`GET /articles/:article_id`, () => {
     context('Given there are articles in the database', () => {
         const testArticles = makeArticlesArray()
 
@@ -137,6 +167,32 @@ describe(`POST /articles`, () => {
             .expect(400, {
                 error: { message: `Missing 'title' in request body` }
             })
+    })
+
+
+    context(`Given an XSS attack article`, () => {
+        const maliciousArticle = {
+            title: "Naughty naughty very naughty <script>alert('xss');</script>",
+            style: 'How-to',
+            content: "Bad image <img src='https://url.to.file.which/does-not.exist' onerror='alert(document.cookie);'>. But not <strong>all</strong> bad."
+        }
+
+        beforeEach('insert malicious article', () => {
+            return db
+                .into('blogful_articles')
+                .insert([maliciousArticle])
+        })
+
+        it('removes XSS attack content', () => {
+            return supertest(app)
+                .post(`/articles/`)
+                .send(maliciousArticle)
+                .expect(201)
+                .expect(res => {
+                    expect(res.body.title).to.eql('Naughty naughty very naughty &lt;script&gt;alert(\'xss\');&lt;/script&gt;')
+                    expect(res.body.content).to.eql(`Bad image <img src="https://url.to.file.which/does-not.exist">. But not <strong>all</strong> bad.`)
+                })
+        })
     })
 
     {

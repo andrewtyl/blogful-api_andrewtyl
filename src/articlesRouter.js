@@ -11,7 +11,15 @@ articleRouter
         const knexInstance = req.app.get('db1')
         ArticlesService.getAllArticles(knexInstance)
             .then(articles => {
-                res.json(articles)
+                let articlesToReturn = [];
+                for (let i = 0; i < articles.length; i++) {
+                    let thisArticle = articles[i]
+                    let thisArticleSanitized = thisArticle
+                    thisArticleSanitized.title = xss(thisArticleSanitized.title)
+                    thisArticleSanitized.content = xss(thisArticleSanitized.content)
+                    articlesToReturn.push(thisArticleSanitized)
+                }
+                res.json(articlesToReturn)
             })
             .catch(next)
     })
@@ -43,8 +51,8 @@ articleRouter
 articleRouter
     .route('/')
     .post(jsonParser, (req, res, next) => {
-        const { title, content, style } = req.body
-        const newArticle = { title, content, style }
+        let { title, content, style } = req.body
+        let newArticle = { title, content, style }
 
         for (const [key, value] of Object.entries(newArticle)) {
             if (value == null) {
@@ -53,6 +61,9 @@ articleRouter
                 })
             }
         }
+
+        newArticle.title = xss(newArticle.title)
+        newArticle.content = xss(newArticle.content)
 
         ArticlesService.insertArticle(
             req.app.get('db1'),
