@@ -4,6 +4,7 @@ const bookmarkRouter = express.Router();
 const bodyParser = express.json();
 const BookmarksService = require('./bookmarks-service')
 const xss = require('xss')
+const path = require('path')
 
 function sanatizeAllBookmarks(inputedBookmarks) {
   let bookmarksToReturn;
@@ -92,7 +93,7 @@ bookmarkRouter
       .then(bookmark => {
         res
           .status(201)
-          .location(`/bookmarks/${bookmark.id}`)
+          .location(path.posix.join(req.originalURL + `/${bookmark.id}`))
           .json(bookmark)
       })
       .catch(next)

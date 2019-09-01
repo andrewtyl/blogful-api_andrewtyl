@@ -57,7 +57,7 @@ app.use(function errorHandler(error, req, res, next) {
     res.status(500).json(response)
 })
 
-app.use('/bookmarks', bookmarkRouter);
+app.use('/api/bookmarks', bookmarkRouter);
 
 app.use('/api/articles', articlesRouter)
 

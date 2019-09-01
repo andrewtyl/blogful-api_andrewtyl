@@ -45,7 +45,7 @@ afterEach('cleanup', () => db('bookmarks').truncate())
 
 after('disconnect from db', () => db.destroy())
 
-describe(`POST /bookmarks`, () => {
+describe(`POST /api/bookmarks`, () => {
     context('Given all requirements are met for the new bookmark and url starts with http://', () => {
         it('creates a bookmark, responding with 201 and the new bookmark', () => {
             const newBookmark = {
@@ -56,7 +56,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     const expected = {
@@ -82,7 +82,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     const expected = {
@@ -108,7 +108,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     const unsanitized = {
@@ -134,7 +134,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -151,7 +151,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -168,7 +168,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -186,7 +186,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -204,7 +204,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -222,7 +222,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -240,7 +240,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -258,7 +258,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -276,7 +276,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -294,7 +294,7 @@ describe(`POST /bookmarks`, () => {
             }
 
             return supertest(app)
-                .post('/bookmarks/')
+                .post('/api/bookmarks/')
                 .send(newBookmark)
                 .expect(res => {
                     expect(400)
@@ -304,7 +304,7 @@ describe(`POST /bookmarks`, () => {
 
 })
 
-describe(`Delete /bookmarks/:id`, () => {
+describe(`Delete /api/bookmarks/:id`, () => {
     context('Given the bookmark ID exists', () => {
         const testBookmarks = makeBookmarksArray()
 
@@ -316,12 +316,12 @@ describe(`Delete /bookmarks/:id`, () => {
 
         it(`successfully deletes the bookmark and returns with a 204 status`, () => {
             return supertest(app)
-                .delete(`/bookmarks/1`)
+                .delete(`/api/bookmarks/1`)
                 .expect(204)
                 .then(res => {
                     let expectedBookmarks = [testBookmarks[1], testBookmarks[2]];
                     return supertest(app)
-                        .get('/bookmarks/')
+                        .get('/api/bookmarks/')
                         .expect(expectedBookmarks)
                 }
                 )
@@ -331,13 +331,13 @@ describe(`Delete /bookmarks/:id`, () => {
     context('Given the bookmark ID does not exist', () => {
         it(`responds with a 404 error`, () => {
             return supertest(app)
-                .delete(`/bookmarks/1`)
+                .delete(`/api/bookmarks/1`)
                 .expect(404)
         })
     })
 })
 
-describe(`GET /bookmarks`, () => {
+describe(`GET /api/bookmarks`, () => {
     context('Given there are bookmarks in the database', () => {
         const testBookmarks = makeBookmarksArray()
 
@@ -349,7 +349,7 @@ describe(`GET /bookmarks`, () => {
 
         it('responds with 200 and all articles in the database', () => {
             return supertest(app)
-                .get('/bookmarks')
+                .get('/api/bookmarks')
                 .expect(200, testBookmarks)
         })
     })
@@ -357,7 +357,7 @@ describe(`GET /bookmarks`, () => {
     context('Given no bookmarks', () => {
         it('responds with 200 and an empty list', () => {
             return supertest(app)
-                .get('/bookmarks')
+                .get('/api/bookmarks')
                 .expect(200, [])
         })
     })
@@ -374,7 +374,7 @@ describe(`GET /bookmarks`, () => {
 
         it('removes xss attack content', () => {
             return supertest(app)
-                .get(`/bookmarks/`)
+                .get(`/api/bookmarks/`)
                 .expect(200)
                 .expect(res => {
                     expect(res.body).to.eql(sanitizedTestBookmarks)
@@ -383,7 +383,7 @@ describe(`GET /bookmarks`, () => {
     })
 })
 
-describe(`GET /bookmarks/:id`, () => {
+describe(`GET /api/bookmarks/:id`, () => {
     context('Given the bookmark exists', () => {
         const testBookmarks = makeBookmarksArray()
 
@@ -397,7 +397,7 @@ describe(`GET /bookmarks/:id`, () => {
             const bookmarkId = 3
             const expectedBookmark = testBookmarks[bookmarkId - 1]
             return supertest(app)
-                .get(`/bookmarks/${bookmarkId}`)
+                .get(`/api/bookmarks/${bookmarkId}`)
                 .expect(200, expectedBookmark)
         })
 
@@ -426,7 +426,7 @@ describe(`GET /bookmarks/:id`, () => {
 
         it('removes xss attack content', () => {
             return supertest(app)
-                .get(`/bookmarks/${maliciousBookmark.id}`)
+                .get(`/api/bookmarks/${maliciousBookmark.id}`)
                 .expect(200)
                 .expect(res => {
                     expect(res.body).to.eql(sanitizedMaliciousBookmark)
