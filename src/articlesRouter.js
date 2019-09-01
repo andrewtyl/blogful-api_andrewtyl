@@ -3,6 +3,7 @@ const express = require('express');
 const articleRouter = express.Router();
 const jsonParser = express.json();
 const ArticlesService = require('./articles-service')
+const xss = require('xss')
 
 articleRouter
     .route('/')
@@ -27,7 +28,13 @@ articleRouter
                     })
                 }
                 else {
-                    res.json(article)
+                    res.json({
+                        id: article.id,
+                        style: article.style,
+                        title: xss(article.title), // sanitize title
+                        content: xss(article.content), // sanitize content
+                        date_published: article.date_published,
+                    })
                 }
             })
             .catch(next)
@@ -39,13 +46,13 @@ articleRouter
         const { title, content, style } = req.body
         const newArticle = { title, content, style }
 
-           for (const [key, value] of Object.entries(newArticle)) {
-             if (value == null) {
-               return res.status(400).json({
-                 error: { message: `Missing '${key}' in request body` }
-               })
-             }
-           }
+        for (const [key, value] of Object.entries(newArticle)) {
+            if (value == null) {
+                return res.status(400).json({
+                    error: { message: `Missing '${key}' in request body` }
+                })
+            }
+        }
 
         ArticlesService.insertArticle(
             req.app.get('db1'),
