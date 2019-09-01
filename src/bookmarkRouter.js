@@ -5,24 +5,28 @@ const bodyParser = express.json();
 const BookmarksService = require('./bookmarks-service')
 const xss = require('xss')
 
-function sanatizeBookmarks(inputedBookmarks) {
+function sanatizeAllBookmarks(inputedBookmarks) {
   let bookmarksToReturn;
-  if (typeof inputedBookmarks === "object") {
-    bookmarksToReturn = inputedBookmarks;
-    inputedBookmarks.title = xss(inputedBookmarks.title)
-    inputedBookmarks.description = xss(inputedBookmarks.description)
-  }
-  else {
-    bookmarksToReturn = [];
-    for (let i = 0; i < inputedBookmarks.length; i++) {
-      let thisBookmark = inputedBookmarks[i]
-      let thisBookmarkSanitized = thisBookmark
-      thisBookmarkSanitized.title = xss(thisBookmarkSanitized.title)
-      thisBookmarkSanitized.description = xss(thisBookmarkSanitized.description)
-      bookmarksToReturn.push(thisBookmarkSanitized)
-    }
+  bookmarksToReturn = [];
+  for (let i = 0; i < inputedBookmarks.length; i++) {
+    let thisBookmark = inputedBookmarks[i]
+    let thisBookmarkSanitized = thisBookmark
+    thisBookmarkSanitized.title = xss(thisBookmarkSanitized.title)
+    thisBookmarkSanitized.description = xss(thisBookmarkSanitized.description)
+    bookmarksToReturn.push(thisBookmarkSanitized)
   }
   return bookmarksToReturn;
+}
+
+function sanatizeOneBookmarks(inputedBookmark) {
+  let bookmarkToReturn = {
+    id: inputedBookmark.id,
+    title: xss(inputedBookmark.title),
+    url: xss(inputedBookmark.url),
+    rating: inputedBookmark.rating,
+    description: xss(inputedBookmark.description)
+  };
+  return bookmarkToReturn;
 }
 
 bookmarkRouter
@@ -31,7 +35,7 @@ bookmarkRouter
     const knexInstance = req.app.get('db2')
     BookmarksService.getAllBookmarks(knexInstance)
       .then(bookmarks => {
-        const sanatizedBookmarks = sanatizeBookmarks(bookmarks)
+        const sanatizedBookmarks = sanatizeAllBookmarks(bookmarks)
         res.json(sanatizedBookmarks)
       })
       .catch(next)
@@ -115,7 +119,7 @@ bookmarkRouter
       .catch(next)
   })
   .get((req, res, next) => {
-    const toReturn = sanatizeBookmarks(res.bookmark)
+    const toReturn = sanatizeOneBookmarks(res.bookmark)
     res.json(toReturn)
   })
   .delete((req, res) => {

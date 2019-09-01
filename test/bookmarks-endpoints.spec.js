@@ -4,24 +4,28 @@ const app = require('../src/app')
 const { makeBookmarksArray, makeMaliciousBookmarksArray } = require('./bookmarks.fixtures')
 const xss = require('xss')
 
-function sanatizeBookmarks(inputedBookmarks) {
+function sanatizeAllBookmarks(inputedBookmarks) {
     let bookmarksToReturn;
-    if (typeof inputedBookmarks === "object") {
-      bookmarksToReturn = inputedBookmarks;
-      inputedBookmarks.title = xss(inputedBookmarks.title)
-      inputedBookmarks.description = xss(inputedBookmarks.description)
-    }
-    else {
-      bookmarksToReturn = [];
-      for (let i = 0; i < inputedBookmarks.length; i++) {
-        let thisBookmark = inputedBookmarks[i]
-        let thisBookmarkSanitized = thisBookmark
-        thisBookmarkSanitized.title = xss(thisBookmarkSanitized.title)
-        thisBookmarkSanitized.description = xss(thisBookmarkSanitized.description)
-        bookmarksToReturn.push(thisBookmarkSanitized)
-      }
+    bookmarksToReturn = [];
+    for (let i = 0; i < inputedBookmarks.length; i++) {
+      let thisBookmark = inputedBookmarks[i]
+      let thisBookmarkSanitized = thisBookmark
+      thisBookmarkSanitized.title = xss(thisBookmarkSanitized.title)
+      thisBookmarkSanitized.description = xss(thisBookmarkSanitized.description)
+      bookmarksToReturn.push(thisBookmarkSanitized)
     }
     return bookmarksToReturn;
+  }
+  
+  function sanatizeOneBookmarks(inputedBookmark) {
+    let bookmarkToReturn = {
+      id: inputedBookmark.id,
+      title: xss(inputedBookmark.title),
+      url: xss(inputedBookmark.url),
+      rating: inputedBookmark.rating,
+      description: xss(inputedBookmark.description)
+    };
+    return bookmarkToReturn;
   }
 
 let db
@@ -40,9 +44,12 @@ afterEach('cleanup', () => db('bookmarks').truncate())
 
 after('disconnect from db', () => db.destroy())
 
-describe(`POST /bookmarks`, () => {
-    context('Given all requirements are met for the new bookmark')
-})
+//describe(`POST /bookmarks`, () => {
+//    context('Given all requirements are met for the new bookmark', () => {
+//        it('creates a bookmark, responding with 201 and the new bookmark', {
+//        })
+//    })
+//})
 
 describe(`Delete /bookmarks/:id`, () => {
     context('Given the bookmark ID exists', () => {
@@ -97,7 +104,7 @@ describe(`GET /bookmarks`, () => {
 
     context('Given there are bookmarks in the database and there is malicious code in one or more of them', () => {
         const testBookmarks = makeMaliciousBookmarksArray()
-        const sanitizedTestBookmarks = sanatizeBookmarks(testBookmarks)
+        const sanitizedTestBookmarks = sanatizeAllBookmarks(testBookmarks)
 
         beforeEach('insert bookmarks including malicious bookmark', () => {
             return db
@@ -149,7 +156,7 @@ describe(`GET /bookmarks/:id`, () => {
     context('Given the bookmark exists and there is malicious code in it', () => {
         const testBookmarks = makeMaliciousBookmarksArray()
         const maliciousBookmark = testBookmarks[3]
-        const sanitizedMaliciousBookmark = sanatizeBookmarks(maliciousBookmark)
+        const sanitizedMaliciousBookmark = sanatizeOneBookmarks(maliciousBookmark)
 
         beforeEach('insert bookmarks including malicious bookmark', () => {
             return db
