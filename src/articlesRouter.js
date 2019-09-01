@@ -5,6 +5,14 @@ const jsonParser = express.json();
 const ArticlesService = require('./articles-service')
 const xss = require('xss')
 
+const serializeArticle = article => ({
+    id: article.id,
+    style: article.style,
+    title: xss(article.title),
+    content: xss(article.content),
+    date_published: article.date_published,
+  })
+
 articleRouter
     .route('/')
     .get((req, res, next) => {
@@ -26,7 +34,7 @@ articleRouter
 
 articleRouter
     .route('/:article_id')
-    .get((req, res, next) => {
+    .all((req, res, next) => {
         const knexInstance = req.app.get('db1')
         ArticlesService.getById(knexInstance, req.params.article_id)
             .then(article => {
@@ -36,14 +44,22 @@ articleRouter
                     })
                 }
                 else {
-                    res.json({
-                        id: article.id,
-                        style: article.style,
-                        title: xss(article.title), // sanitize title
-                        content: xss(article.content), // sanitize content
-                        date_published: article.date_published,
-                    })
+                    res.article = article
+                    next()
                 }
+            })
+            .catch(next)
+    })
+    .get((req, res, next) => {
+        res.json(serializeArticle(res.article))
+    })
+    .delete((req, res, next) => {
+        ArticlesService.deleteArticle(
+            req.app.get('db1'),
+            req.params.article_id
+        )
+            .then(() => {
+                res.status(204).end()
             })
             .catch(next)
     })
