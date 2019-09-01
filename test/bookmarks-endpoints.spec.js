@@ -41,11 +41,7 @@ afterEach('cleanup', () => db('bookmarks').truncate())
 after('disconnect from db', () => db.destroy())
 
 describe(`POST /bookmarks`, () => {
-    it(`responds with a 501 error`, () => {
-        return supertest(app)
-            .post('/bookmarks')
-            .expect(501)
-    })
+    context('Given all requirements are met for the new bookmark')
 })
 
 describe(`Delete /bookmarks/:id`, () => {
@@ -120,7 +116,7 @@ describe(`GET /bookmarks`, () => {
     })
 })
 
-describe.only(`GET /bookmarks/:id`, () => {
+describe(`GET /bookmarks/:id`, () => {
     context('Given the bookmark exists', () => {
         const testBookmarks = makeBookmarksArray()
 
