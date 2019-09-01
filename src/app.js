@@ -59,7 +59,7 @@ app.use(function errorHandler(error, req, res, next) {
 
 app.use('/bookmarks', bookmarkRouter);
 
-app.use('/articles', articlesRouter)
+app.use('/api/articles', articlesRouter)
 
 app.get('/', (req, res) => {
     res.send('Hello, world!')

@@ -357,7 +357,7 @@ describe(`GET /bookmarks`, () => {
     context('Given no bookmarks', () => {
         it('responds with 200 and an empty list', () => {
             return supertest(app)
-                .get('/articles')
+                .get('/bookmarks')
                 .expect(200, [])
         })
     })
